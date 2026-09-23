@@ -1,0 +1,8 @@
+cmake_minimum_required(VERSION 3.22)
+project(stm_fatfs_tests LANGUAGES C)
+enable_testing()
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/.." component)
+add_executable(stm_fatfs_tests test_fatfs.c)
+target_compile_options(stm_fatfs_tests PRIVATE -Wall -Wextra -Werror)
+target_link_libraries(stm_fatfs_tests PRIVATE stm_fatfs)
+add_test(NAME stm_fatfs_tests COMMAND stm_fatfs_tests)
