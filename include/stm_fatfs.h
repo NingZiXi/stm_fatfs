@@ -6,7 +6,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#define STM_FATFS_VERSION "1.0.0"
+#define STM_FATFS_VERSION "1.0.1"
 #define STM_FATFS_MAX_DISKS 4U
 #define FATFS_ERR_NO_MEDIA ((stm_err_t)0x5001)
 #define FATFS_ERR_PROTECTED ((stm_err_t)0x5002)

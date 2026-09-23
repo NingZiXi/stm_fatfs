@@ -63,7 +63,10 @@ DSTATUS disk_status(BYTE pdrv)
 {
     fatfs_disk_handle_t d=disk(pdrv); if (!d) return STA_NOINIT;
     stm_err_t e=d->cfg.ops->status(d->cfg.ctx); d->last_error=e;
-    if (e) d->status=STA_NOINIT; return d->status;
+    if (e) {
+        d->status = STA_NOINIT;
+    }
+    return d->status;
 }
 DRESULT disk_read(BYTE pdrv,BYTE *buff,LBA_t sector,UINT count)
 {

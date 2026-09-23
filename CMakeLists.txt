@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.22)
-project(stm_fatfs VERSION 1.0.0 LANGUAGES C)
+project(stm_fatfs VERSION 1.0.1 LANGUAGES C)
 include(FetchContent)
 
 set(STM_FATFS_SOURCE_DIR "" CACHE PATH "FatFs source directory containing ff.c, ff.h and ffconf.h")
