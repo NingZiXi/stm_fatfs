@@ -62,9 +62,26 @@ DSTATUS disk_initialize(BYTE pdrv)
 DSTATUS disk_status(BYTE pdrv)
 {
     fatfs_disk_handle_t d=disk(pdrv); if (!d) return STA_NOINIT;
-    stm_err_t e=d->cfg.ops->status(d->cfg.ctx); d->last_error=e;
-    if (e) {
-        d->status = STA_NOINIT;
+    stm_err_t e=d->cfg.ops->status(d->cfg.ctx);
+    d->last_error=e;
+    if (e == STM_OK) {
+        uint64_t count;
+        uint32_t size;
+        uint32_t block;
+        uint8_t protect;
+        stm_err_t geometry_error = d->cfg.ops->get_geometry(
+            d->cfg.ctx, &count, &size, &block, &protect);
+        if (geometry_error != STM_OK) {
+            d->last_error=geometry_error;
+            d->status=STA_NOINIT;
+        } else {
+            d->status=(DSTATUS)((d->status & STA_NOINIT) |
+                                (protect ? STA_PROTECT : 0U));
+        }
+    } else if (e == FATFS_ERR_PROTECTED) {
+        d->status=(DSTATUS)(d->status | STA_PROTECT);
+    } else {
+        d->status=STA_NOINIT;
     }
     return d->status;
 }

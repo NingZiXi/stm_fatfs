@@ -2,6 +2,8 @@
 
 `stm_fatfs` 是官方 FatFs 的磁盘粘合层。它负责固定盘号注册、`diskio` 路由、几何信息和错误转换；文件、目录、挂载和格式化仍由官方 `f_*` API 完成。核心不依赖 STM32 HAL、RTOS、RTT 或日志。
 
+组件同时提供可选的 stm_fatfs_sd 与 stm_fatfs_flash 桥接。Flash 桥接把 NOR 的物理擦除块转换为 512 字节逻辑扇区，写入时执行读改擦写以保留同一擦除块中未修改的数据；它不会自动格式化介质。
+
 当前发布版本为 **v1.0.1**，默认使用 FatFs R0.14b。组件目录中的 `fatfs` 源码是可审计的固定副本，保留 ChaN 的授权头；原创粘合代码采用本目录的 MIT 许可。应用也可以通过 `STM_FATFS_SOURCE_DIR` 提供自己的 FatFs 源码或复用已经存在的 `fatfs` target。
 
 ## 接入
