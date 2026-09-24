@@ -1,17 +1,19 @@
 #include "stm_fatfs_sd.h"
+#include "stm_fatfs_flash.h"
 #include "stm_sd.h"
+#include "stm_flash.h"
 #include "ff.h"
 #include <stdio.h>
 #include <string.h>
 
 volatile stm_err_t example_result = STM_OK;
 
-/* card must be created by the board layer before this function is called. */
-stm_err_t example_mount_and_rw(sd_handle_t card)
+/* The device handle must be created by the board layer before the wrapper is called. */
+static stm_err_t example_mount_and_rw_config(const fatfs_disk_config_t *config)
 {
     BYTE pdrv = 0xFFU;
     fatfs_disk_handle_t disk = NULL;
-    fatfs_disk_config_t disk_config = fatfs_disk_from_sd(card);
+    fatfs_disk_config_t disk_config = *config;
     example_result = fatfs_disk_register(&disk_config, &pdrv, &disk);
     if (example_result != STM_OK) { return example_result; }
 
@@ -43,4 +45,17 @@ stm_err_t example_mount_and_rw(sd_handle_t card)
     (void)f_mount(NULL, path, 0U);
     (void)fatfs_disk_unregister(&disk);
     return example_result;
+}
+
+
+stm_err_t example_mount_and_rw(sd_handle_t card)
+{
+    fatfs_disk_config_t config = fatfs_disk_from_sd(card);
+    return example_mount_and_rw_config(&config);
+}
+
+stm_err_t example_mount_and_rw_flash(flash_handle_t flash)
+{
+    fatfs_disk_config_t config = fatfs_disk_from_flash(flash);
+    return example_mount_and_rw_config(&config);
 }
