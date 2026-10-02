@@ -2,7 +2,7 @@
 
 ## FatFs R0.14b
 
-The `fatfs/` source used by the default CMake configuration is FatFs R0.14b by ChaN. Its source files retain the original copyright and redistribution terms at the top of each file:
+The upstream source downloaded by the default CMake configuration is FatFs R0.14b by ChaN, from https://elm-chan.org/fsw/ff/arc/ff14b.zip (SHA-256: d4605ab7c418fc4cc4cb555c8129482873add6f5ca5f25810e7ca8cfd57d07cb). Its source files retain the original copyright and redistribution terms at the top of each file:
 
 ```text
 FatFs - Generic FAT Filesystem Module R0.14b

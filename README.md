@@ -4,7 +4,7 @@
 
 组件同时提供可选的 stm_fatfs_sd 与 stm_fatfs_flash 桥接。Flash 桥接把 NOR 的物理擦除块转换为 512 字节逻辑扇区，写入时执行读改擦写以保留同一擦除块中未修改的数据；它不会自动格式化介质。
 
-当前发布版本为 **v1.0.1**，默认使用 FatFs R0.14b。组件目录中的 `fatfs` 源码是可审计的固定副本，保留 ChaN 的授权头；原创粘合代码采用本目录的 MIT 许可。应用也可以通过 `STM_FATFS_SOURCE_DIR` 提供自己的 FatFs 源码或复用已经存在的 `fatfs` target。
+默认由 `stm_fatfs` 从 ChaN 官方站点下载固定版本 FatFs R0.14b（ZIP 使用 SHA-256 校验），缓存于 CMake 构建目录，不在主工程维护源码副本。`config/ffconf.h` 是本组件管理的配置；原创粘合代码采用本目录的 MIT 许可，官方源码保留其原授权声明。
 
 ## 接入
 
@@ -18,7 +18,8 @@ target_link_libraries(app PRIVATE stm_fatfs)
 `stm_fatfs` 核心只有 FatFs 和磁盘回调依赖。检测到同级 `stm_sd` 或已有 `stm_sd` target 时，默认额外生成可选的 `stm_fatfs_sd`；没有 SD 时可设置 `-DSTM_FATFS_WITH_SD=OFF` 或让组件跳过该桥接 target。
 
 ```cmake
-set(STM_FATFS_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/fatfs")
+# 可选：离线或定制时指定本地 FatFs 源码目录（包含 ff.c 和 ff.h）
+set(STM_FATFS_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/vendor/fatfs/source")
 set(STM_FATFS_WITH_SD ON)
 add_subdirectory(stm_fatfs)
 target_link_libraries(app PRIVATE stm_fatfs_sd)
@@ -43,7 +44,7 @@ if (error == STM_OK) {
 
 `disk_initialize/status/read/write/ioctl` 是 FatFs 的全局入口，因此注册表也是进程级的；磁盘回调上下文仍由每个绑定保存。注销前必须关闭文件并 `f_mount(NULL, "0:", 0)`，应用负责停止并发访问。无 `trim` 回调时不伪造 `CTRL_TRIM`。首版按完整物理盘映射，不在桥接层叠加分区偏移。
 
-项目拥有 `ffconf.h` 的最终选择。组件示例配置为 512 字节扇区、读写、长文件名和可选 exFAT；RTOS 重入、时间戳和掉电一致性需要应用按实际系统补齐。`ffsystem_portable.c` 仅提供 malloc/free 和固定时间戳弱替代，带 RTC 的工程应提供自己的 `get_fattime`。
+组件默认使用 `config/ffconf.h`（512 字节扇区、读写、长文件名和 exFAT）；项目可以设置 `STM_FATFS_CONFIG_FILE` 指向自定义配置，也可以提供现有的 `fatfs` target。离线构建时指定 `STM_FATFS_SOURCE_DIR` 或预填 CMake FetchContent 缓存；设置 `STM_FATFS_FETCH=OFF` 且未提供源码时配置会报错。RTOS 重入、时间戳和掉电一致性需要应用按实际系统补齐。`ffsystem_portable.c` 仅提供 malloc/free 和固定时间戳弱替代，带 RTC 的工程应提供自己的 `get_fattime`。
 
 ## 验证
 
