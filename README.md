@@ -6,6 +6,20 @@
 
 默认由 `stm_fatfs` 从 ChaN 官方站点下载固定版本 FatFs R0.14b（ZIP 使用 SHA-256 校验），缓存于 CMake 构建目录，不在主工程维护源码副本。`config/ffconf.h` 是本组件管理的配置；原创粘合代码采用本目录的 MIT 许可，官方源码保留其原授权声明。
 
+当前发布 **v1.0.4** 为文档补丁，补充支持的 Driver 清单；驱动源码/API 与 v1.0.3 相同，不新增实板验证结论。
+
+## 支持的 Driver / 存储后端
+
+本组件是文件系统粘合层，不直接驱动器件；底层型号与总线支持由所绑定的存储组件决定。
+
+| 类型 | Driver / 后端 | 接入入口 | 支持范围与限制 |
+| --- | --- | --- | --- |
+| SD 块设备桥接 | `stm_sd` | [`fatfs_disk_from_sd()`](adapters/sd/stm_fatfs_sd.h)；target `stm_fatfs_sd` | `STM_FATFS_WITH_SD=ON` 且依赖可用；绑定已有 `sd_handle_t`，器件/SDMMC 支持见 `stm_sd` |
+| NOR Flash 桥接 | `stm_flash` | [`fatfs_disk_from_flash()`](adapters/flash/stm_fatfs_flash.h)；target `stm_fatfs_flash` | `STM_FATFS_WITH_FLASH=ON` 且已提供 `stm_flash` target；512 B 逻辑扇区，按物理擦除块读改擦写 |
+| 自定义磁盘接口 | 应用提供的块设备 | [`fatfs_disk_ops_t` / `fatfs_disk_register()`](include/stm_fatfs.h) | 应用实现初始化、状态、读写、同步与几何等回调；不是额外内置器件 Driver |
+
+NOR 桥接不会自动格式化，也不提供通用 FTL、磨损均衡或掉电原子写保证。SD/NOR 后端须由应用先完成硬件接入并保持句柄有效；内存磁盘主机测试不等于介质实板验证。
+
 ## 接入
 
 ```cmake
